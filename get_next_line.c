@@ -1,83 +1,88 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   oldget_next_line.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: qacjl <qacjl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/06/18 15:57:56 by quenalla          #+#    #+#             */
-/*   Updated: 2024/07/02 15:52:32 by qacjl            ###   ########.fr       */
+/*   Created: 2024/07/03 10:28:07 by quenalla          #+#    #+#             */
+/*   Updated: 2024/07/05 16:18:59 by qacjl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include"get_next_line.h"
 
+void	ft_free_NULL(char **ptr)
+{
+	if (*ptr != NULL)
+	{
+		free(*ptr);
+		ptr = NULL;
+	}
+}
 
-static char	*ft_set_line(char *line_buffer)
+char	*ft_join(int position, char **buffer)
 {
 	char	*res;
-	ssize_t	i;
+	char	*tmp;
 
-	i = 0;
-	while (line_buffer[i] != '\n' && line_buffer[i] != '\0')
-		i++;
-	if (line_buffer[i] == 0 || line_buffer[1] == 0)
-		return (NULL);
-	res = ft_substr(line_buffer, i + 1, ft_strlen(line_buffer) - i);
-	if (!(res))
+	tmp = NULL;
+	if (position <= 0)
 	{
-		free(res);
-		res = NULL;
+		if (**buffer == '\0')
+		{
+			free(*buffer);
+			*buffer = NULL;
+			return (NULL);
+		}
+		res = *buffer;
+		*buffer = NULL;
+		return (res);
 	}
-	line_buffer[i + 1] = '\0';
+	tmp = ft_substr(*buffer, position, BUFFER_SIZE);
+	res = *buffer;
+	res[position] = 0;
+	*buffer = tmp;
 	return (res);
 }
 
-static char	*ft_line(int fd, char *res, char *buffer)
+char	*ft_read(int fd, char **buffer, char *str)
 {
 	ssize_t	byte_read;
 	char	*tmp;
+	char	*check;
 
-	byte_read = 1;
-	while (byte_read > 0)
+	check = ft_strchr(*buffer, '\n');
+	byte_read = 0;
+	while (check == NULL)
 	{
-		byte_read = read(fd, buffer, BUFFER_SIZE);
-		if (byte_read == -1)
-		{
-			free(res);
-			return (NULL);
-		}
-		else if (byte_read == 0)
-			break;
-		buffer[byte_read] = '\0';
-		if (!(res))
-			res = ft_strdup("");
-		tmp = res;
-		res = ft_strjoin(tmp, buffer);
-		free(tmp);
-		tmp = NULL;
-		if (ft_strchr(buffer, '\n'))
-			break;
+		byte_read = read(fd, str, BUFFER_SIZE);
+		if (byte_read <= 0)
+			return (ft_join(byte_read, buffer));
+		str[byte_read] = 0;
+		tmp = ft_strjoin(*buffer, str);
+		ft_free_NULL(buffer);
+		*buffer = tmp;
+		check = ft_strchr(*buffer, '\n');
 	}
-	return (res);
+	return (ft_join(check - *buffer + 1, buffer));
 }
 
 char	*get_next_line(int fd)
 {
-	static char		*res;
-	char			*str;
-	char			*buffer;
+	static char	*buffer[LIMIT_FD];
+	char		*res;
+	char		*str;
 
-	if(fd < 0 || MAX_FD < fd || BUFFER_SIZE <= 0)
+	if (fd < 0 || fd > LIMIT_FD || BUFFER_SIZE <= 0)
 		return (NULL);
-	buffer = (char *)malloc(BUFFER_SIZE + 1);
-	if (!(buffer))
-		return (NULL);
-	str = ft_line(fd, res, buffer);
-	free(buffer);
-	buffer = NULL;
+	str = (char *)malloc(BUFFER_SIZE + 1);
 	if (!(str))
 		return (NULL);
-	res = ft_set_line(ft_line);
-	return (str);
+	if (!(buffer[fd]))
+		buffer[fd] = ft_strdup("");
+	res = ft_read(fd, &buffer[fd], str);
+	ft_free_NULL(&str);
+	return (res);
 }
+

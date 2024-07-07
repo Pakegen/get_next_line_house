@@ -6,23 +6,23 @@
 /*   By: qacjl <qacjl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/18 15:57:54 by quenalla          #+#    #+#             */
-/*   Updated: 2024/07/02 14:38:39 by qacjl            ###   ########.fr       */
+/*   Updated: 2024/07/05 14:31:03 by qacjl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include"get_next_line.h"
 
-static size_t	ft_strlen(char *str)
+size_t	ft_strlen(char *str)
 {
 	size_t	i;
 
 	i = 0;
 	while (str[i])
 		i++;
-	return(i);
+	return (i);
 }
 
-static char	*ft_strchr(const char *s, int c)
+char	*ft_strchr(const char *s, int c)
 {
 	char	*str;
 
@@ -36,7 +36,7 @@ static char	*ft_strchr(const char *s, int c)
 	return (str);
 }
 
-static char	*ft_strdup(char const *s)
+char	*ft_strdup(char const *s)
 {
 	size_t	i;
 	char	*dest;
@@ -54,7 +54,7 @@ static char	*ft_strdup(char const *s)
 	return (dest);
 }
 
-static char	*ft_strjoin(char const *s1, char const *s2)
+char	*ft_strjoin(char const *s1, char const *s2)
 {
 	size_t	len_s1;
 	size_t	len_s2;
@@ -83,7 +83,7 @@ static char	*ft_strjoin(char const *s1, char const *s2)
 	return (dest);
 }
 
-static char	*ft_substr(char const *s, unsigned start, size_t len)
+char	*ft_substr(char const *s, unsigned start, size_t len)
 {
 	size_t	len_src;
 	size_t	i;
